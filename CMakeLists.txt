@@ -9,3 +9,12 @@ add_executable(hangman
     src/game.c
     src/word_strategy.c
 )
+
+add_executable(test_game
+    tests/test_game.c
+    src/game.c
+)
+
+enable_testing()
+
+add_test(NAME GameTests COMMAND test_game)
