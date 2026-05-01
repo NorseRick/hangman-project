@@ -22,6 +22,7 @@ Available strategies:
 
 ## Project Structure
 
+```text
 hangman_project/
 ├── src/
 │   ├── main.c
@@ -34,6 +35,9 @@ hangman_project/
 ├── CMakeLists.txt
 ├── README.md
 └── .gitignore
+```
+
+
 
 ## Build Instructions
 
