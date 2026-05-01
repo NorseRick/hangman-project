@@ -2,7 +2,7 @@
 #include <stdlib.h>                                                             // rand, srand
 #include <string.h>                                                             // strlen
 #include <time.h>                                                               // time, difftime, clock
-
+#include "word_strategy.h"
 int main(int argc, char *argv[]) {
 
     // List of possible secret words (Array of strings)
@@ -17,8 +17,8 @@ int main(int argc, char *argv[]) {
     int num_words = 5;                                                          // Total number of words
 
     srand(time(NULL));                                                          // Initialize random numbers
-    const char *secret = words[rand() % num_words];                             // Choose a random word pointing to secret varable
-
+    WordSelectionStrategy strategy = random_word_strategy;
+    const char *secret = strategy(words, num_words);
     int len = strlen(secret);                                                   // Length of the secret word
     char display[50];                                                           // Word shown to the player
     int lives = 6;                                                              // Number of lives
