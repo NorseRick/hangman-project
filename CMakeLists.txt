@@ -6,5 +6,6 @@ set(CMAKE_C_STANDARD 99)
 
 add_executable(hangman
     src/main.c
+    src/game.c
     src/word_strategy.c
 )

@@ -1,11 +1,14 @@
-#include <stdio.h>                                                              // printf, scanf
-#include <stdlib.h>                                                             // rand, srand
-#include <string.h>                                                             // strlen
-#include <time.h>                                                               // time, difftime, clock
+#include <stdio.h>          // printf, scanf
+#include <stdlib.h>         // srand
+#include <string.h>         // strlen
+#include <time.h>           // time, difftime, clock
+
 #include "word_strategy.h"
+#include "game.h"
+
 int main(int argc, char *argv[]) {
 
-    // List of possible secret words (Array of strings)
+    // List of possible secret words
     const char *words[] = {
         "computer",
         "keyboard",
@@ -14,120 +17,91 @@ int main(int argc, char *argv[]) {
         "laptop"
     };
 
-    int num_words = 5;                                                          // Total number of words
+    int num_words = 5;
 
-    srand(time(NULL));                                                          // Initialize random numbers
+    srand(time(NULL));
+
+    // Strategy Pattern: the word selection logic is separated
     WordSelectionStrategy strategy = random_word_strategy;
     const char *secret = strategy(words, num_words);
-    int len = strlen(secret);                                                   // Length of the secret word
-    char display[50];                                                           // Word shown to the player
-    int lives = 6;                                                              // Number of lives
-    int won = 0;                                                                // Win flag (0 = no, 1 = yes)
-    char input[10];                                                             // User input
-    char guess;                                                                 // Single valid letter
 
-    // Fill display with underscores
+    int len = strlen(secret);
+    char display[50];
+    int lives = 6;
+    int won = 0;
+    char input[10];
+    char guess;
+
     for (int i = 0; i < len; i++) {
         display[i] = '_';
     }
-    display[len] = '\0';                                                        // End of string
+    display[len] = '\0';
 
-    // Start time measurement
-    time_t real_start = time(NULL);                                             // Start real time
-    clock_t cpu_start = clock();                                                // Start CPU time
+    time_t real_start = time(NULL);
+    clock_t cpu_start = clock();
 
     printf("--- HANGMAN ---\n");
     printf("Guess the word (one letter only).\n\n");
 
-    // Main game loop
     while (lives > 0) {
 
-        // Show current word
         printf("Word: ");
         for (int i = 0; i < len; i++) {
             printf("%c ", display[i]);
         }
         printf("\n");
 
-        // Show lives and ask for a letter
         printf("Lives: %d\n", lives);
         printf("Letter: ");
-        scanf("%9s", input);                                                    // Read user input
+        scanf("%9s", input);
 
-        // Check that only one character was entered
         if (strlen(input) != 1) {
             printf("Enter only ONE letter.\n\n");
-            continue;                                                           // Skip turn
+            continue;
         }
 
-        guess = input[0];                                                       // Get the character
+        guess = input[0];
 
-        // Check if input is a letter
-        if ((guess < 'A' || guess > 'Z') &&
-            (guess < 'a' || guess > 'z')) {
+        if (!is_letter(guess)) {
             printf("Enter a valid letter.\n\n");
-            continue;                                                           // Skip turn
+            continue;
         }
 
-                                                                                // Convert uppercase letter to lowercase
-        if (guess >= 'A' && guess <= 'Z') {
-            guess = guess + ('a' - 'A');
-        }
+        guess = normalize_letter(guess);
 
-        int hit = 0;                                                            // Check if letter was found
+        int hit = update_display(secret, guess, display);
 
-        // Compare guessed letter with the secret word
-        for (int i = 0; i < len; i++) {
-            if (secret[i] == guess) {
-                display[i] = guess;                                             // Reveal letter
-                hit = 1;
-            }
-        }
-
-        // Lose a life if letter was not found
         if (!hit) {
             lives--;
         }
 
-        // Check if the whole word is guessed
-        won = 1;
-        for (int i = 0; i < len; i++) {
-            if (display[i] == '_') {
-                won = 0;
-                break;
-            }
-        }
+        won = check_win(display);
 
         if (won) {
-            break;                                                              // Exit game loop
+            break;
         }
 
         printf("\n");
     }
 
-    // End time measurement
-    time_t real_end = time(NULL);                                               // End real time
-    clock_t cpu_end = clock();                                                  // End CPU time
+    time_t real_end = time(NULL);
+    clock_t cpu_end = clock();
 
-    double real_seconds = difftime(real_end, real_start);                       // Total real time
+    double real_seconds = difftime(real_end, real_start);
     double cpu_seconds =
-        (double)(cpu_end - cpu_start) / CLOCKS_PER_SEC;                         // Total CPU time
+        (double)(cpu_end - cpu_start) / CLOCKS_PER_SEC;
 
-    // Show final result
     if (won) {
         printf("\nYou Win! The word was: %s\n", secret);
     } else {
         printf("\nYou Lose! The word was: %s\n", secret);
     }
 
-    // Show time results
-    printf("\n TIME RESULTS \n");
+    printf("\nTIME RESULTS\n");
     printf("Real time: %.2f seconds\n", real_seconds);
     printf("CPU time:  %.5f seconds\n", cpu_seconds);
 
     printf("\nThanks for playing!\n");
 
-    return 0;                                                                   // End of program
+    return 0;
 }
-
-	
